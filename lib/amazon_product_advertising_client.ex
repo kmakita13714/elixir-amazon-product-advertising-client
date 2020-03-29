@@ -32,13 +32,14 @@ defmodule AmazonProductAdvertisingClient do
     |> Jason.encode!()
   end
 
-  # Headers on most requests.
+  # Headers on most requests. Headers are case-sensitive
+  # https://webservices.amazon.com/paapi5/documentation/sending-request.html#signing.
   def build_pre_signed_headers(request_params) do
     %{
-      "x-Amz-Target" => Map.get(request_params, :"Target"),
+      "x-amz-target" => Map.get(request_params, :"Target"),
       "Accept" => "application/json, text/javascript",
-      "Content-Type" => "application/json; charset=UTF-8",
-      "Content-Encoding" => "amz-1.0"
+      "content-type" => "application/json; charset=UTF-8",
+      "content-encoding" => "amz-1.0"
     }
   end
 
@@ -53,6 +54,23 @@ defmodule AmazonProductAdvertisingClient do
       headers,
       payload
     )
+    |> Enum.map(fn({k, v}) ->
+      # Capitalize Authorization header (case sensitive.)
+      if k == "authorization" do
+        {"Authorization", v}
+      else
+        {k, v}
+      end
+    end)
+    |> Enum.map(fn({k, v}) ->
+      # Replace commas with spaces.
+      if k == "Authorization" do
+        commas_replaced = String.replace(v, ",", " ")
+        {k, commas_replaced}
+      else
+        {k, v}
+      end
+    end)
   end
 
 end
