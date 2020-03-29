@@ -24,4 +24,5 @@ defmodule AmazonProductAdvertisingClientTest do
     plus_encoded_query = "http://example.com?Signature=fake&Thing=this+has+spaces&Timestamp=fake"
     assert percent_encoded_query == AmazonProductAdvertisingClient.process_url plus_encoded_query
   end
+
 end

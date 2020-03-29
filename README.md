@@ -1,6 +1,8 @@
 Amazon Product Advertising Client
 ================================
 
+On March 9th 2020, Amazon deprecated Product Advertising Version 4 and required all clients migrate to Product Advertising API 5. Accordingly, any version of this library < 0.3.0 will fail and you should upgrade immediately.
+
 ## Configure
 Add your AWS authentication credentials to `config/config.exs`:
 
@@ -9,7 +11,7 @@ Hex: https://hex.pm/packages/amazon_product_advertising_client
 ```elixir
 
   # in your mix.exs
-  {:amazon_product_advertising_client, "~> 0.2.1"}
+  {:amazon_product_advertising_client, "~> 0.3.0"}
 
 ```
 
@@ -18,11 +20,13 @@ Hex: https://hex.pm/packages/amazon_product_advertising_client
 # in your config/config.exs
 config :amazon_product_advertising_client,
   associate_tag: "YourAssociateTag",
-  aws_access_key_id: "YourAccessKeyID",
-  aws_secret_access_key: "YourSecretAccessKey",
-  marketplace_host: "webservices.amazon.ca" # If not specified the default value is webservices.amazon.com
+  access_key_id: "YourAccessKeyID",
+  access_secret_key: "YourSecretAccessKey",
+  host: "webservices.amazon.ca" # optional, default is webservices.amazon.com
+  region: "us-east-1" # optional, default is "us-east-1"
 
 ```
+[Host and Region Options](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html)
 
 ## Usage and Examples
 
