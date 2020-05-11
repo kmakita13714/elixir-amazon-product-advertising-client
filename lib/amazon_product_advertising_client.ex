@@ -4,64 +4,73 @@ defmodule AmazonProductAdvertisingClient do
   """
 
   use HTTPoison.Base
-  use Timex
 
   alias AmazonProductAdvertisingClient.Config
 
-  @scheme "http"
-  @host    Application.get_env(:amazon_product_advertising_client, :marketplace_host, "webservices.amazon.com")
-  @path   "/onca/xml"
+  @scheme "https"
 
   @doc """
   Make a call to the API with the specified request parameters.
   """
   def call_api(request_params, config \\ %Config{}) do
-    query = [request_params, config] |> combine_params |> percent_encode_query
-    get %URI{scheme: @scheme, host: @host, path: @path, query: query}
+    url = @scheme <> "://" <> Map.get(config, :"Host") <> Map.get(request_params, :"Path")
+
+    pre_signed_headers = build_pre_signed_headers(request_params)
+
+    payload = build_payload_body(request_params, config)
+
+    signed_headers_with_auth = add_authorization_headers(url, payload, pre_signed_headers, config)
+
+    post!(url, payload, signed_headers_with_auth)
   end
 
-  defp combine_params(params_list) do
-    List.foldl params_list, Map.new, fn(params, all_params) ->
-      Map.merge Map.from_struct(params), all_params
-    end
+  # Takes Config as the base and uses request_params
+  def build_payload_body(request_params, config = %Config{}) do
+    config
+    |> Map.merge(request_params) # allow request_params to override base config
+    |> Map.drop([:"__struct__", :"Path", :"Host", :"Operation", :"Region", :"AccessKey", :"SecretKey", :"Service", :"Target"]) # Remove some keys we know aren't part of the payload body to Amazon
+    |> Jason.encode!()
   end
 
-  # `URI.encode_query/1` explicitly does not percent-encode spaces, but Amazon requires `%20`
-  # instead of `+` in the query, so we essentially have to rewrite `URI.encode_query/1` and
-  # `URI.pair/1`.
-  defp percent_encode_query(query_map) do
-    Enum.map_join(query_map, "&", &pair/1)
+  # Headers on most requests. Headers are case-sensitive
+  # https://webservices.amazon.com/paapi5/documentation/sending-request.html#signing.
+  def build_pre_signed_headers(request_params) do
+    %{
+      "x-amz-target" => Map.get(request_params, :"Target"),
+      "Accept" => "application/json, text/javascript",
+      "content-type" => "application/json; charset=UTF-8",
+      "content-encoding" => "amz-1.0"
+    }
   end
 
-  # See comment on `percent_encode_query/1`.
-  defp pair({k, v}) do
-    URI.encode(Kernel.to_string(k), &URI.char_unreserved?/1) <>
-    "=" <> URI.encode(Kernel.to_string(v), &URI.char_unreserved?/1)
+  def add_authorization_headers(url, payload, headers, config = %Config{}) do
+    AWSAuth.sign_authorization_header(
+      Map.get(config, :"AccessKey"),
+      Map.get(config, :"SecretKey"),
+      "POST",
+      url,
+      Map.get(config, :"Region"),
+      Map.get(config, :"Service"),
+      headers,
+      payload
+    )
+    |> Enum.map(fn({k, v}) ->
+      # Capitalize Authorization header (case sensitive.)
+      if k == "authorization" do
+        {"Authorization", v}
+      else
+        {k, v}
+      end
+    end)
+    |> Enum.map(fn({k, v}) ->
+      # Replace commas with spaces.
+      if k == "Authorization" do
+        commas_replaced = String.replace(v, ",", " ")
+        {k, commas_replaced}
+      else
+        {k, v}
+      end
+    end)
   end
 
-  def process_url(url) do
-    url |> URI.parse |> timestamp_url |> sign_url |> String.Chars.to_string
-  end
-
-  defp timestamp_url(url_parts) do
-    update_url url_parts, "Timestamp", Timex.format!(Timex.local, "{ISO:Extended:Z}")
-  end
-
-  defp sign_url(url_parts) do
-    hmac = :crypto.hmac(
-        :sha256,
-        Application.get_env(:amazon_product_advertising_client, :aws_secret_access_key),
-        Enum.join(["GET", url_parts.host, url_parts.path, url_parts.query], "\n")
-      )
-    signature = Base.encode64(hmac)
-    update_url url_parts, "Signature", signature
-  end
-
-  defp update_url(url_parts, key, value) do
-    updated_query = url_parts.query
-                        |> URI.decode_query
-                        |> Map.put_new(key, value)
-                        |> percent_encode_query
-    Map.put url_parts, :query, updated_query
-  end
 end

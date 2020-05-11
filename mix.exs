@@ -3,8 +3,8 @@ defmodule AmazonProductAdvertisingClient.Mixfile do
 
   def project do
     [app: :amazon_product_advertising_client,
-     version: "0.2.2",
-     elixir: "~> 1.4",
+     version: "0.2.3",
+     elixir: "~> 1.7",
      description: "An Amazon Product Advertising API client for Elixir",
      package: package(),
      deps: deps()]
@@ -17,9 +17,9 @@ defmodule AmazonProductAdvertisingClient.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.18.0", only: :dev, runtime: false},
-      {:httpoison, "~> 1.0"},
-      {:sweet_xml, "~> 0.6"},
-      {:timex, "~> 3.1"},
+      {:httpoison, "~> 1.3"},
+      {:aws_auth, "~> 0.7.2"},
+      {:jason, "~> 1.2"}
     ]
   end
 

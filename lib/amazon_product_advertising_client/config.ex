@@ -1,10 +1,15 @@
 defmodule AmazonProductAdvertisingClient.Config do
   @moduledoc """
-  The configuration used for authorizing and versioning API requests.
+  The common configuration used for authorizing and versioning API requests.
+  [reference](https://webservices.amazon.com/paapi5/documentation/common-request-parameters.html)
   """
 
-  defstruct "AssociateTag": Application.get_env(:amazon_product_advertising_client, :associate_tag),
-    "AWSAccessKeyId": Application.get_env(:amazon_product_advertising_client, :aws_access_key_id),
-    "Service": "AWSECommerceService",
-    "Version": "2013-08-01"
+  defstruct "PartnerTag": Application.get_env(:amazon_product_advertising_client, :associate_tag),
+    "PartnerType": "Associates",
+    "AccessKey": Application.get_env(:amazon_product_advertising_client, :access_key_id),
+    "SecretKey": Application.get_env(:amazon_product_advertising_client, :access_secret_key),
+    "Service": "ProductAdvertisingAPI",
+    "Host": Application.get_env(:amazon_product_advertising_client, :host) || "webservices.amazon.com",
+    "Region": Application.get_env(:amazon_product_advertising_client, :region) || "us-east-1",
+    "Marketplace": Application.get_env(:amazon_product_advertising_client, :marketplace) || "www.amazon.com"
 end
