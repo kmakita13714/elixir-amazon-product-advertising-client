@@ -9,13 +9,20 @@ defmodule AmazonProductAdvertisingClient.SearchItems do
   defstruct "Operation": "SearchItems",
     "Path": "/paapi5/searchitems",
     "Target": "com.amazon.paapi5.v1.ProductAdvertisingAPIv1.SearchItems",
-    "PartnerTag": Application.get_env(:amazon_product_advertising_client, :associate_tag),
     "Marketplace": Application.get_env(:amazon_product_advertising_client, :marketplace) || "www.amazon.com",
+    "PartnerTag": Application.get_env(:amazon_product_advertising_client, :associate_tag),
     "PartnerType": "Associates",
+    "BrowseNodeId": nil,
     "Condition": "New",
-    "Resources": nil,
+    "CurrencyOfPreference": nil,
+    "ItemCount": 10,
+    "ItemPage": 1,
     "Keywords": nil,
-    "SearchIndex": nil
+    "LanguagesOfPreference": nil,
+    "Merchant": "Amazon",
+    "Resources": nil,
+    "SearchIndex": nil,
+    "SortBy": nil
 
   @doc """
   Execute a SearchItems operation
