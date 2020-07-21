@@ -3,8 +3,6 @@ defmodule AmazonProductAdvertisingClient do
   An Amazon Product Advertising API client for Elixir
   """
 
-  use HTTPoison.Base
-
   alias AmazonProductAdvertisingClient.Config
 
   @scheme "https"
@@ -12,16 +10,20 @@ defmodule AmazonProductAdvertisingClient do
   @doc """
   Make a call to the API with the specified request parameters.
   """
-  def call_api(request_params, config \\ %Config{}) do
+  def call_api(params, config \\ %Config{}) do
+    request_params = Map.from_struct(params)
+    request_params = Map.put_new(request_params, :"Path", "/paapi5/" <> String.downcase(Map.get(request_params, :"Operation")))
+    request_params = Map.put_new(request_params, :"Target", "com.amazon.paapi5.v1.ProductAdvertisingAPIv1." <> Map.get(request_params, :"Operation"))
+
     url = @scheme <> "://" <> Map.get(config, :"Host") <> Map.get(request_params, :"Path")
-
-    pre_signed_headers = build_pre_signed_headers(request_params)
-
     payload = build_payload_body(request_params, config)
-
+    pre_signed_headers = build_pre_signed_headers(request_params)
     signed_headers_with_auth = add_authorization_headers(url, payload, pre_signed_headers, config)
 
-    post!(url, payload, signed_headers_with_auth)
+    case MachineGun.post!(url, payload, signed_headers_with_auth, %{request_timeout: 60000}) do
+      %MachineGun.Response{status_code: 200, body: body} -> {:ok, Poison.decode!(body)}
+      %MachineGun.Response{body: body} -> {:error, Poison.decode!(body)}
+    end
   end
 
   # Takes Config as the base and uses request_params
@@ -29,17 +31,16 @@ defmodule AmazonProductAdvertisingClient do
     config
     |> Map.merge(request_params) # allow request_params to override base config
     |> Map.drop([:"__struct__", :"Path", :"Host", :"Operation", :"Region", :"AccessKey", :"SecretKey", :"Service", :"Target"]) # Remove some keys we know aren't part of the payload body to Amazon
-    |> Jason.encode!()
+    |> Poison.encode!()
   end
 
   # Headers on most requests. Headers are case-sensitive
   # https://webservices.amazon.com/paapi5/documentation/sending-request.html#signing.
   def build_pre_signed_headers(request_params) do
     %{
-      "x-amz-target" => Map.get(request_params, :"Target"),
-      "Accept" => "application/json, text/javascript",
-      "content-type" => "application/json; charset=UTF-8",
-      "content-encoding" => "amz-1.0"
+      "Content-Encoding" => "amz-1.0",
+      "Content-Type" => "application/json",
+      "X-Amz-Target" => Map.get(request_params, :"Target")
     }
   end
 
@@ -58,15 +59,6 @@ defmodule AmazonProductAdvertisingClient do
       # Capitalize Authorization header (case sensitive.)
       if k == "authorization" do
         {"Authorization", v}
-      else
-        {k, v}
-      end
-    end)
-    |> Enum.map(fn({k, v}) ->
-      # Replace commas with spaces.
-      if k == "Authorization" do
-        commas_replaced = String.replace(v, ",", " ")
-        {k, commas_replaced}
       else
         {k, v}
       end

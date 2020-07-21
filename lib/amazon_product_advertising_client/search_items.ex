@@ -7,22 +7,31 @@ defmodule AmazonProductAdvertisingClient.SearchItems do
   alias AmazonProductAdvertisingClient.Config
 
   defstruct "Operation": "SearchItems",
-    "Path": "/paapi5/searchitems",
-    "Target": "com.amazon.paapi5.v1.ProductAdvertisingAPIv1.SearchItems",
-    "Marketplace": Application.get_env(:amazon_product_advertising_client, :marketplace) || "www.amazon.com",
-    "PartnerTag": Application.get_env(:amazon_product_advertising_client, :associate_tag),
-    "PartnerType": "Associates",
+    "Actor": nil,
+    "Artist": nil,
+    "Author": nil,
+    "Availability": nil,
+    "Brand": nil,
     "BrowseNodeId": nil,
-    "Condition": "New",
+    "Condition": nil,
     "CurrencyOfPreference": nil,
+    "DeliveryFlags": nil,
     "ItemCount": 10,
     "ItemPage": 1,
     "Keywords": nil,
     "LanguagesOfPreference": nil,
-    "Merchant": "Amazon",
+    "Marketplace": nil,
+    "MaxPrice": nil,
+    "Merchant": nil,
+    "MinPrice": nil,
+    "MinReviewsRating": nil,
+    "MinSavingPercent": nil,
+    "OfferCount": nil,
+    "Properties": nil,
     "Resources": nil,
     "SearchIndex": nil,
-    "SortBy": nil
+    "SortBy": nil,
+    "Title": nil
 
   @doc """
   Execute a SearchItems operation

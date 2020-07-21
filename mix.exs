@@ -17,9 +17,8 @@ defmodule AmazonProductAdvertisingClient.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.18.0", only: :dev, runtime: false},
-      {:httpoison, "~> 1.3"},
-      {:aws_auth, "~> 0.7.2"},
-      {:jason, "~> 1.2"}
+      {:machine_gun, "~> 0.1.8"},
+      {:poison, "~> 4.0"},
     ]
   end
 

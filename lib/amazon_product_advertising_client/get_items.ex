@@ -6,17 +6,16 @@ defmodule AmazonProductAdvertisingClient.GetItems do
   alias __MODULE__
   alias AmazonProductAdvertisingClient.Config
 
-  defstruct "Condition": "New",
-    "Operation": "GetItems", # com.amazon.paapi5.v1.ProductAdvertisingAPIv1.GetItems
-    "Path": "/paapi5/getitems",
-    "ItemIdType": "ASIN",
-    "IncludeReviewsSummary": nil,
-    "ItemIds": nil,
+  defstruct "Operation": "GetItems",
+    "Condition": nil,
+    "CurrencyOfPreference": nil,
+    "ItemIdType": nil,
+    "ItemIds": [],
     "LanguagesOfPreference": nil,
     "Marketplace": nil,
     "Merchant": nil,
-    "OfferCount": 1,
-    "Resources": ["ItemInfo.Title", "Images.Primary.Medium", "ItemInfo.ContentInfo", "ItemInfo.ExternalIds", "ItemInfo.ProductInfo", "Offers.Listings.Price"]
+    "OfferCount": nil,
+    "Resources": nil
 
   @doc """
   Execute a GetItems operation
