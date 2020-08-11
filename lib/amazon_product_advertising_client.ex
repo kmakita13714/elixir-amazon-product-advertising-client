@@ -2,6 +2,10 @@ defmodule AmazonProductAdvertisingClient do
   @moduledoc """
   An Amazon Product Advertising API client for Elixir
   """
+  use Tesla
+
+  adapter Tesla.Adapter.Mint, timeout: 60_000
+  plug Tesla.Middleware.JSON, engine: Poison
 
   alias AmazonProductAdvertisingClient.Config
 
@@ -20,9 +24,9 @@ defmodule AmazonProductAdvertisingClient do
     pre_signed_headers = build_pre_signed_headers(request_params)
     signed_headers_with_auth = add_authorization_headers(url, payload, pre_signed_headers, config)
 
-    case MachineGun.post!(url, payload, signed_headers_with_auth, %{request_timeout: 60000}) do
-      %MachineGun.Response{status_code: 200, body: body} -> {:ok, Poison.decode!(body)}
-      %MachineGun.Response{body: body} -> {:error, Poison.decode!(body)}
+    case post(url, payload, headers: signed_headers_with_auth) do
+      {:ok, response} -> {:ok, response.body}
+      {:error, response} -> {:error, response.body}
     end
   end
 
