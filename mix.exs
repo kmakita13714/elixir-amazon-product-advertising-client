@@ -17,7 +17,7 @@ defmodule AmazonProductAdvertisingClient.Mixfile do
   defp deps do
     [
       {:tesla, "~> 1.3"},
-      {:mint, "~> 1.1"},
+      {:hackney, "~> 1.16"},
       {:castore, "~> 0.1.7"},
       {:poison, ">= 1.0.0"}
     ]

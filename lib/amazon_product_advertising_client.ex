@@ -4,7 +4,7 @@ defmodule AmazonProductAdvertisingClient do
   """
   use Tesla
 
-  adapter Tesla.Adapter.Mint, timeout: 60_000
+  adapter Tesla.Adapter.Hackney, recv_timeout: 60_000
   plug Tesla.Middleware.JSON, engine: Poison
 
   alias AmazonProductAdvertisingClient.Config
